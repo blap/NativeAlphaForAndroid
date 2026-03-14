@@ -10,7 +10,7 @@ import static org.junit.Assert.assertTrue;
 public class RoboTests {
 
     @Test
-    public void emptyTest() {
+    public void defaultTest() {
         assertTrue(true);
     }
 }

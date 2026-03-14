@@ -51,7 +51,7 @@
             android:launchMode="standard"
             android:documentLaunchMode="intoExisting"
             />
- 
+
                 <activity
             android:name=".__WebViewActivity_0"
             android:label="@string/app_name"

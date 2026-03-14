@@ -10,20 +10,15 @@ aboutLibraries {
 //https://gist.github.com/shakalaca/6422811
 android {
      applicationVariants.all { variant ->
-         variant.assembleProvider.configure {
-             doLast {
-                 delete fileTree('src/main/java/com/cylonid/nativealpha') {
-                     include '**/__WebViewActivity_*.java'
-                 }
-                 def manifestFile = file('src/main/AndroidManifest.xml')
-                 def originalManifestFile = file('src/main/AndroidManifest_original.xml')
-                 if (originalManifestFile.exists()) {
-                     if (manifestFile.exists()) {
-                         manifestFile.delete()
-                     }
-                     originalManifestFile.renameTo(manifestFile)
-                 }
+         variant.assembleProvider.get().doLast {
+             delete fileTree('src/main/java/com/cylonid/nativealpha') {
+                 include '**/__WebViewActivity_*.java'
              }
+             delete fileTree('src/main') {
+                 include '**/AndroidManifest.xml'
+             }
+             ant.move(file: 'src/main/AndroidManifest_original.xml', tofile:'src/main/AndroidManifest.xml')
+
          }
      }
 
@@ -70,9 +65,6 @@ android {
     buildFeatures {
         dataBinding true
         viewBinding true
-    }
-    lintOptions {
-        abortOnError false
     }
     kotlinOptions {
         jvmTarget = '17'

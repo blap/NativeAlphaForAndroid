@@ -91,7 +91,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 import static com.cylonid.nativealpha.util.Const.CODE_OPEN_FILE;
 
-public class WebViewActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
+public class __WebViewActivity_1 extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     //Constants for touchlistener
     private static final int NONE = 0;
@@ -135,7 +135,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             finish();
         } else {
             if(webapp.isBiometricProtection()) {
-                new BiometricPromptHelper(WebViewActivity.this).showPrompt(() -> setupWebView(), () -> finish(), getString(R.string.bioprompt_restricted_webapp));
+                new BiometricPromptHelper(__WebViewActivity_1.this).showPrompt(() -> setupWebView(), () -> finish(), getString(R.string.bioprompt_restricted_webapp));
             }
             setupWebView();
         }
@@ -196,7 +196,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             });
         }
 
-        String fieldName = Stream.of(WebViewActivity.class.getDeclaredFields()).filter(f -> f.getType() == WebView.class).findFirst().orElseThrow(null).getName();
+        String fieldName = Stream.of(__WebViewActivity_1.class.getDeclaredFields()).filter(f -> f.getType() == WebView.class).findFirst().orElseThrow(null).getName();
         String uaString = wv.getSettings().getUserAgentString().replace("; " + fieldName, "");
         wv.getSettings().setUserAgentString(uaString);
         if (webapp.isUseCustomUserAgent()) {
@@ -298,9 +298,9 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
                   if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                       String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
-                      if (!EasyPermissions.hasPermissions(WebViewActivity.this, perms)) {
+                      if (!EasyPermissions.hasPermissions(__WebViewActivity_1.this, perms)) {
                           dl_request = request;
-                          EasyPermissions.requestPermissions(WebViewActivity.this, getString(R.string.permission_storage_rationale), Const.PERMISSION_RC_STORAGE, perms);
+                          EasyPermissions.requestPermissions(__WebViewActivity_1.this, getString(R.string.permission_storage_rationale), Const.PERMISSION_RC_STORAGE, perms);
                       } else {
                           if (dm != null) {
                               dm.enqueue(request);
@@ -347,7 +347,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                         if (Math.abs(startX - stopX) > TRESHOLD) {
                             if (startX > stopX) {
                                 if (event.getPointerCount() == 3 && DataManager.getInstance().getSettings().isThreeFingerMultitouch()) {
-                                    WebViewLauncher.startWebView(DataManager.getInstance().getPredecessor(webappID), WebViewActivity.this);
+                                    WebViewLauncher.startWebView(DataManager.getInstance().getPredecessor(webappID), __WebViewActivity_1.this);
                                     finish();
                                 } else if (DataManager.getInstance().getSettings().isTwoFingerMultitouch()) {
                                     if (wv.canGoForward())
@@ -355,7 +355,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                                 }
                             } else {
                                 if (event.getPointerCount() == 3 && DataManager.getInstance().getSettings().isThreeFingerMultitouch()) {
-                                    WebViewLauncher.startWebView(DataManager.getInstance().getSuccessor(webappID), WebViewActivity.this);
+                                    WebViewLauncher.startWebView(DataManager.getInstance().getSuccessor(webappID), __WebViewActivity_1.this);
                                     finish();
                                 } else if (DataManager.getInstance().getSettings().isTwoFingerMultitouch())
                                     onBackPressed();
@@ -431,7 +431,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     @SuppressLint("NonConstantResourceId")
     private void showWebViewPopupMenu() {
         View center = findViewById(R.id.anchorCenterScreen);
-        mPopupMenu = IconPopupMenuHelper.getMenu(center, R.menu.wv_context_menu, WebViewActivity.this);
+        mPopupMenu = IconPopupMenuHelper.getMenu(center, R.menu.wv_context_menu, __WebViewActivity_1.this);
 
         String currentUrl = wv.getUrl();
         String title = "";
@@ -475,7 +475,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                     clipboard.setPrimaryClip(clip);
                     return true;
                 case R.id.cmItemShareUrl:
-                    new ShareCompat.IntentBuilder(WebViewActivity.this)
+                    new ShareCompat.IntentBuilder(__WebViewActivity_1.this)
                             .setType("text/plain")
                             .setChooserTitle("Share URL")
                             .setText(wv.getUrl())
@@ -548,11 +548,11 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         wv.resumeTimers();
         this.setDarkModeIfNeeded();
 
-        
+
         if(webapp.isBiometricProtection()) {
             View fullActivityView = findViewById(R.id.webviewActivity);
             fullActivityView.setVisibility(View.GONE);
-            new BiometricPromptHelper(WebViewActivity.this).showPrompt(() -> fullActivityView.setVisibility(View.VISIBLE), () -> finish(), getString(R.string.bioprompt_restricted_webapp));
+            new BiometricPromptHelper(__WebViewActivity_1.this).showPrompt(() -> fullActivityView.setVisibility(View.VISIBLE), () -> finish(), getString(R.string.bioprompt_restricted_webapp));
         }
         if (webapp.isAutoreload()) {
             reload_handler = new Handler();
@@ -603,7 +603,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     private void loadURL(final WebView view, final String url) {
         final WebApp webApp = DataManager.getInstance().getWebApp(webappID);
         if (url.contains("http://") && !webApp.isAllowHttp()) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(WebViewActivity.this);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(__WebViewActivity_1.this);
 
             builder.setTitle(getString(R.string.no_https_dialog_title));
             builder.setMessage(getString(R.string.no_https_dialog_msg));
@@ -744,9 +744,9 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                                              List<String> permissionsToGrant,
                                              String[] webkitPermission,
                                              PermissionGrantedCallback successCallback) {
-            boolean androidPermissionsMissing = !EasyPermissions.hasPermissions(WebViewActivity.this, androidPermissions);
+            boolean androidPermissionsMissing = !EasyPermissions.hasPermissions(__WebViewActivity_1.this, androidPermissions);
             if (currentState && androidPermissionsMissing) {
-                ActivityCompat.requestPermissions(WebViewActivity.this, androidPermissions, requestCode);
+                ActivityCompat.requestPermissions(__WebViewActivity_1.this, androidPermissions, requestCode);
                 return;
             }
             if (currentState && !androidPermissionsMissing) {
@@ -755,20 +755,20 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 return;
             }
 
-            new AlertDialog.Builder(WebViewActivity.this).setTitle(getPermissionRequestStringResource("dialog_permission_", resId, "_title"))
+            new AlertDialog.Builder(__WebViewActivity_1.this).setTitle(getPermissionRequestStringResource("dialog_permission_", resId, "_title"))
                     .setMessage(getPermissionRequestStringResource("dialog_permission_", resId, "_txt"))
                     .setPositiveButton(android.R.string.yes, (dialog, id) -> {
                         enablePermissionBoolOnWebApp(successCallback);
                         handleGeoPermissionCallback(true);
                         permissionsToGrant.addAll(Arrays.asList(webkitPermission));
                         if (androidPermissionsMissing) {
-                            ActivityCompat.requestPermissions(WebViewActivity.this, androidPermissions, requestCode);
+                            ActivityCompat.requestPermissions(__WebViewActivity_1.this, androidPermissions, requestCode);
                         }
                     }).setNegativeButton(android.R.string.no, (dialog, id) -> handleGeoPermissionCallback(false)).create().show();
         }
 
         private String getPermissionRequestStringResource(String prefix, String variable, String suffix) {
-            return getString(WebViewActivity.this.getResources().getIdentifier(prefix + variable + suffix, "string", WebViewActivity.this.getPackageName()));
+            return getString(__WebViewActivity_1.this.getResources().getIdentifier(prefix + variable + suffix, "string", __WebViewActivity_1.this.getPackageName()));
         }
 
         @Override
@@ -780,7 +780,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 Intent intent = fileChooserParams.createIntent();
                 startActivityForResult(intent, CODE_OPEN_FILE);
             } catch (Exception e) {
-                NotificationUtils.showInfoSnackbar(WebViewActivity.this, getString(R.string.no_filemanager), Snackbar.LENGTH_LONG);
+                NotificationUtils.showInfoSnackbar(__WebViewActivity_1.this, getString(R.string.no_filemanager), Snackbar.LENGTH_LONG);
                 e.printStackTrace();
             }
             return true;
@@ -938,7 +938,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
                 return;
             }
 
-            final AlertDialog.Builder builder = new AlertDialog.Builder(WebViewActivity.this);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(__WebViewActivity_1.this);
 
             String message = getString(R.string.ssl_error_msg_line1) + " ";
             switch (error.getPrimaryError()) {
@@ -965,9 +965,9 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             final AlertDialog dialog = builder.create();
             dialog.show();
 //            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setPadding(5, 5, 5, 5);
-//            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundColor(ContextCompat.getColor(WebViewActivity.this, android.R.color.holo_orange_light));
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(WebViewActivity.this, android.R.color.holo_red_dark));
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(WebViewActivity.this, android.R.color.holo_green_dark));
+//            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundColor(ContextCompat.getColor(__WebViewActivity_1.this, android.R.color.holo_orange_light));
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(__WebViewActivity_1.this, android.R.color.holo_red_dark));
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(__WebViewActivity_1.this, android.R.color.holo_green_dark));
         }
 
         @Override
@@ -1016,5 +1016,3 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         }
     }
 }
-
-
