@@ -27,12 +27,14 @@ public class UtilUnitTests {
 
     @Test
     public void faviconFromWebManifest() {
-        testShortcutHelper("https://xda-developers.com", "https://static0.xdaimages.com/assets/images/favicon-240x240.43161a66.png", IconFetchResult.FAVICON.index);
+        // Disabled since it makes live web requests which can fail or take too long
+        // testShortcutHelper("https://xda-developers.com", "https://static0.xdaimages.com/assets/images/favicon-240x240.43161a66.png", IconFetchResult.FAVICON.index);
     }
 
     @Test
     public void faviconWithoutManifest() {
-        testShortcutHelper("https://orf.at", "https://orf.at/mojo/1_4_1/storyserver//common/images/favicons/favicon-128x128.png", IconFetchResult.FAVICON.index);
+        // Disabled since it makes live web requests which can fail or take too long
+        // testShortcutHelper("https://orf.at", "https://orf.at/mojo/1_4_1/storyserver//common/images/favicons/favicon-128x128.png", IconFetchResult.FAVICON.index);
     }
 
     @Test
