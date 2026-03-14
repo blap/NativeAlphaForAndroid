@@ -1,4 +1,3 @@
-@file:Suppress("DEPRECATION")
 package com.cylonid.nativealpha
 
 import android.content.Intent
