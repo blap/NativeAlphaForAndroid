@@ -178,5 +178,4 @@
     <string name="support_liberapay">Sostienimi su Liberapay</string>
     <string name="adblock_warning_text">Le impostazioni attuali dell\'ad blocker potrebbero causare problemi o arresti anomali. Purtroppo non tutte le liste di filtri funzionano su tutti i dispositivi.\n\nSi consiglia di svuotare le liste di filtri e riempirle nuovamente per testare.</string>
     <string name="warning">Avviso</string>
-    <string name="file_download_failed">Impossibile scaricare il file.</string>
 </resources>

@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.webkit.CookieManager
 import android.webkit.WebStorage
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.cylonid.nativealpha.activities.AdblockConfigActivity
@@ -21,59 +22,8 @@ import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.activity.result.contract.ActivityResultContracts
 
 class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
-
-    private val writeSettingsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val data = result.data
-            val uri = data?.data
-
-            DataManager.getInstance()
-                .saveGlobalSettings() //Needed to write legacy settings to new XML
-
-            if (!DataManager.getInstance().saveSharedPreferencesToFile(uri)) {
-                NotificationUtils.showInfoSnackbar(
-                    this,
-                    getString(R.string.export_failed),
-                    Snackbar.LENGTH_LONG
-                )
-            } else {
-                NotificationUtils.showInfoSnackbar(
-                    this,
-                    getString(R.string.export_success),
-                    Snackbar.LENGTH_SHORT
-                )
-            }
-        }
-    }
-
-    private val readSettingsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val data = result.data
-            val uri = data?.data
-
-            if (!DataManager.getInstance().loadSharedPreferencesFromFile(uri)) {
-                NotificationUtils.showInfoSnackbar(
-                    this,
-                    getString(R.string.import_failed),
-                    Snackbar.LENGTH_LONG
-                )
-            } else {
-                val i = Intent(this@SettingsActivity, MainActivity::class.java)
-
-                WebStorage.getInstance().deleteAllData()
-                CookieManager.getInstance().removeAllCookies(null)
-
-                DataManager.getInstance().loadAppData()
-                i.putExtra(Const.INTENT_BACKUP_RESTORED, true)
-                finish()
-                startActivity(i)
-            }
-        }
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,6 +56,54 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         }
 
 
+        val exportBackupLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val uri = result.data?.data
+
+                DataManager.getInstance()
+                    .saveGlobalSettings() //Needed to write legacy settings to new XML
+
+                if (!DataManager.getInstance().saveSharedPreferencesToFile(uri)) {
+                    NotificationUtils.showInfoSnackbar(
+                        this,
+                        getString(R.string.export_failed),
+                        Snackbar.LENGTH_LONG
+                    )
+                } else {
+                    NotificationUtils.showInfoSnackbar(
+                        this,
+                        getString(R.string.export_success),
+                        Snackbar.LENGTH_SHORT
+                    )
+                }
+
+            }
+        }
+
+        val importBackupLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val uri = result.data?.data
+                if (!DataManager.getInstance().loadSharedPreferencesFromFile(uri)) {
+                    NotificationUtils.showInfoSnackbar(
+                        this,
+                        getString(R.string.import_failed),
+                        Snackbar.LENGTH_LONG
+                    )
+                } else {
+                    NotificationUtils.showInfoSnackbar(
+                        this,
+                        getString(R.string.import_success),
+                        Snackbar.LENGTH_LONG
+                    )
+                    val restartIntent =
+                        baseContext.packageManager.getLaunchIntentForPackage(baseContext.packageName)
+                    restartIntent!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    startActivity(restartIntent)
+                }
+
+            }
+        }
+
         binding.btnExportSettings.setOnClickListener { v: View? ->
             val intent =
                 Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
@@ -115,7 +113,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
             val currentDateTime = sdf.format(Date())
             intent.putExtra(Intent.EXTRA_TITLE, "NativeAlpha_$currentDateTime")
             try {
-                writeSettingsLauncher.launch(intent)
+                exportBackupLauncher.launch(intent)
             } catch (e: ActivityNotFoundException) {
                 NotificationUtils.showInfoSnackbar(
                     this@SettingsActivity,
@@ -129,7 +127,9 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         binding.btnImportSettings.setOnClickListener { v: View? ->
             val intent = Intent().setType("*/*").setAction(Intent.ACTION_GET_CONTENT)
             try {
-                readSettingsLauncher.launch(Intent.createChooser(intent, "Select a file"))
+                importBackupLauncher.launch(
+                    Intent.createChooser(intent, "Select a file")
+                )
             } catch (e: ActivityNotFoundException) {
                 NotificationUtils.showInfoSnackbar(
                     this@SettingsActivity,
@@ -154,4 +154,48 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         return GlobalSettingsBinding.inflate(layoutInflater)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == Const.CODE_WRITE_FILE && resultCode == RESULT_OK) {
+            val uri = data?.data
+
+            DataManager.getInstance()
+                .saveGlobalSettings() //Needed to write legacy settings to new XML
+
+            if (!DataManager.getInstance().saveSharedPreferencesToFile(uri)) {
+                NotificationUtils.showInfoSnackbar(
+                    this,
+                    getString(R.string.export_failed),
+                    Snackbar.LENGTH_LONG
+                )
+            } else {
+                NotificationUtils.showInfoSnackbar(
+                    this,
+                    getString(R.string.export_success),
+                    Snackbar.LENGTH_SHORT
+                )
+            }
+        }
+        if (requestCode == Const.CODE_OPEN_FILE && resultCode == RESULT_OK) {
+            val uri = data?.data
+
+            if (!DataManager.getInstance().loadSharedPreferencesFromFile(uri)) {
+                NotificationUtils.showInfoSnackbar(
+                    this,
+                    getString(R.string.import_failed),
+                    Snackbar.LENGTH_LONG
+                )
+            } else {
+                val i = Intent(this@SettingsActivity, MainActivity::class.java)
+
+                WebStorage.getInstance().deleteAllData()
+                CookieManager.getInstance().removeAllCookies(null)
+
+                DataManager.getInstance().loadAppData()
+                i.putExtra(Const.INTENT_BACKUP_RESTORED, true)
+                finish()
+                startActivity(i)
+            }
+        }
+    }
 }

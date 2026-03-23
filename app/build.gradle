@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
-
 aboutLibraries {
     excludeFields = ["generated"]
 }
@@ -14,11 +13,12 @@ android {
              delete fileTree('src/main/java/com/cylonid/nativealpha') {
                  include '**/__WebViewActivity_*.java'
              }
-             delete fileTree('src/main') {
-                 include '**/AndroidManifest.xml'
+             if (file('src/main/AndroidManifest_original.xml').exists()) {
+                 delete fileTree('src/main') {
+                     include '**/AndroidManifest.xml'
+                 }
+                 ant.move(file: 'src/main/AndroidManifest_original.xml', tofile:'src/main/AndroidManifest.xml')
              }
-             ant.move(file: 'src/main/AndroidManifest_original.xml', tofile:'src/main/AndroidManifest.xml')
-
          }
      }
 
@@ -68,9 +68,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = '17'
-        freeCompilerArgs += [
-            "-nowarn"
-        ]
     }
     buildTypes {
         release {
@@ -113,9 +110,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    tasks.withType(JavaCompile).configureEach {
-        options.compilerArgs += ["-Xlint:-deprecation", "-nowarn"]
-        options.deprecation = false
+
+    lintOptions {
+        abortOnError false
     }
 
     namespace 'com.cylonid.nativealpha'
@@ -142,6 +139,7 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:4.14.1'
     testImplementation 'org.json:json:20250107'
     testImplementation 'org.mockito:mockito-core:5.17.0'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.11.0'
     testImplementation 'org.mockito:mockito-android:5.17.0'
     testImplementation 'org.mockito.kotlin:mockito-kotlin:5.4.0'
     androidTestImplementation 'org.mockito:mockito-android:5.17.0'
@@ -169,7 +167,9 @@ dependencies {
 
 }
 def renameManifest = tasks.register("renameManifest") {
-    ant.move(file: 'src/main/AndroidManifest.xml', tofile:'src/main/AndroidManifest_original.xml')
+    if (file('src/main/AndroidManifest.xml').exists()) {
+        ant.move(file: 'src/main/AndroidManifest.xml', tofile:'src/main/AndroidManifest_original.xml')
+    }
 }
 preBuild.dependsOn renameManifest
 

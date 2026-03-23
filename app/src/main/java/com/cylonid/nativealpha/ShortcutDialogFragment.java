@@ -4,8 +4,6 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.ShortcutManager;
 import android.graphics.Bitmap;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
@@ -80,23 +78,6 @@ public class ShortcutDialogFragment extends DialogFragment  {
 
     public ShortcutDialogFragment() {}
 
-    private final ActivityResultLauncher<Intent> fileChooserLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
-                    Uri uri = result.getData().getData();
-                    try {
-                        bitmap = android.provider.MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
-                        if (bitmap != null)
-                            applyNewBitmapToDialog();
-                    } catch(IOException e) {
-                        NotificationUtils.showToast(requireActivity(), getString(R.string.icon_not_found), Toast.LENGTH_SHORT);
-                        e.printStackTrace();
-                    }
-                }
-            }
-    );
-
     public static ShortcutDialogFragment newInstance(WebApp webapp) {
         ShortcutDialogFragment frag = new ShortcutDialogFragment();
         frag.webapp = webapp;
@@ -116,6 +97,23 @@ public class ShortcutDialogFragment extends DialogFragment  {
 
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CODE_OPEN_FILE && resultCode == RESULT_OK) {
+            Uri uri = data.getData();
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
+                if (bitmap != null)
+                    applyNewBitmapToDialog();
+
+            }
+            catch(IOException e) {
+                NotificationUtils.showToast(requireActivity(), getString(R.string.icon_not_found), Toast.LENGTH_SHORT);
+                e.printStackTrace();
+            }
+        }
+    }
 
     @NonNull
     @Override
@@ -150,7 +148,7 @@ public class ShortcutDialogFragment extends DialogFragment  {
 
             Intent intent = new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT);
             try {
-                fileChooserLauncher.launch(Intent.createChooser(intent, "Select an icon"));
+                startActivityForResult(Intent.createChooser(intent, "Select an icon"), CODE_OPEN_FILE);
             } catch (android.content.ActivityNotFoundException e) {
                 NotificationUtils.showInfoSnackbar(requireActivity(), getString(R.string.no_filemanager), Snackbar.LENGTH_LONG);
                 e.printStackTrace();

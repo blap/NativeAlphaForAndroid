@@ -10,7 +10,8 @@ import static org.junit.Assert.assertTrue;
 public class RoboTests {
 
     @Test
-    public void defaultTest() {
+    public void dummyTest() {
+        // Robolectric requires at least one test method to run without error.
         assertTrue(true);
     }
 }

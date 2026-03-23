@@ -7,8 +7,6 @@ import android.app.DownloadManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -108,20 +106,6 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
     private DownloadManager.Request dl_request = null;
     private Map<String, String> CUSTOM_HEADERS;
     protected ValueCallback<Uri[]> filePathCallback;
-
-    private final ActivityResultLauncher<Intent> fileChooserLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (filePathCallback != null) {
-                    if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
-                        filePathCallback.onReceiveValue(android.webkit.WebChromeClient.FileChooserParams.parseResult(result.getResultCode(), result.getData()));
-                    } else {
-                        filePathCallback.onReceiveValue(null);
-                    }
-                    filePathCallback = null;
-                }
-            }
-    );
 
     private boolean quitOnNextBackpress = false;
     private Handler reload_handler = null;
@@ -531,7 +515,6 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         WebApp webapp = DataManager.getInstance().getWebApp(webappID);
 
         if(wv.canGoBack()) {
@@ -733,6 +716,20 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent intent) {
+
+        super.onActivityResult(requestCode, resultCode, intent);
+        if (resultCode == RESULT_CANCELED && requestCode == CODE_OPEN_FILE) {
+            this.filePathCallback.onReceiveValue(null);
+        } else if (resultCode == RESULT_OK && requestCode == CODE_OPEN_FILE) {
+            filePathCallback.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, intent));
+            filePathCallback = null;
+        }
+    }
+
+
     private class CustomWebChromeClient extends android.webkit.WebChromeClient {
         private View mCustomView;
         private WebChromeClient.CustomViewCallback mCustomViewCallback;
@@ -780,7 +777,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
             filePathCallback = pFilePathCallback;
             try {
                 Intent intent = fileChooserParams.createIntent();
-                fileChooserLauncher.launch(intent);
+                startActivityForResult(intent, CODE_OPEN_FILE);
             } catch (Exception e) {
                 NotificationUtils.showInfoSnackbar(WebViewActivity.this, getString(R.string.no_filemanager), Snackbar.LENGTH_LONG);
                 e.printStackTrace();
