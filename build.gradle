@@ -16,6 +16,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-compose-compiler-plugin:$kotlinVersion"
         classpath "com.mikepenz.aboutlibraries.plugin:aboutlibraries-plugin:11.6.3"
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.51.0"
         
 
         // NOTE: Do not place your application dependencies here; they belong
