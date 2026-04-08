@@ -6,9 +6,8 @@ import android.graphics.drawable.Drawable
 
 class ResourceImageGetter(private val context: Context) : ImageGetter {
     override fun getDrawable(source: String): Drawable {
-        val resources = context.resources
         val resId = context.resIdByName(source, "drawable")
-        val res = resources.getDrawable(resId)
+        val res = androidx.core.content.ContextCompat.getDrawable(context, resId)!!
 
         res.setBounds(0, 0, res.intrinsicWidth, res.intrinsicHeight)
         return res

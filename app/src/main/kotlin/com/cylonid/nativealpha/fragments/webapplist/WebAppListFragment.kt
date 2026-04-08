@@ -72,7 +72,7 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
                 )
                 intent.putExtra(Const.INTENT_WEBAPPID, item.ID)
                 intent.setAction(Intent.ACTION_VIEW)
-                context?.let { ContextCompat.startActivity(it, intent, null) }
+                context?.startActivity(intent)
                 return true
             }
             return false

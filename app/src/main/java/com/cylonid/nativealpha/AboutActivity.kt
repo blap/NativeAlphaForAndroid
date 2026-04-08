@@ -8,7 +8,6 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.cylonid.nativealpha.databinding.ActivityToolbarBaseBinding
 import com.cylonid.nativealpha.util.ColorUtils.getColorResFromThemeAttr
-import com.mikepenz.aboutlibraries.LibsBuilder
 import mehdi.sakout.aboutpage.AboutPage
 import mehdi.sakout.aboutpage.Element
 import java.time.Year
@@ -142,12 +141,10 @@ class AboutActivity : AppCompatActivity() {
         val os = Element()
         os.setTitle(getString(R.string.open_source_libs))
         os.setOnClickListener {
-            startActivity(
-                LibsBuilder()
-                    .withEdgeToEdge(true)
-                    .withSearchEnabled(true)
-                    .intent(this)
-            )
+            val intent = Intent(this, com.mikepenz.aboutlibraries.ui.LibsActivity::class.java)
+            intent.putExtra("ABOUT_LIBRARIES_EDGE_TO_EDGE", true)
+            intent.putExtra("ABOUT_LIBRARIES_SEARCH_ENABLED", true)
+            startActivity(intent)
         }
         return os
     }

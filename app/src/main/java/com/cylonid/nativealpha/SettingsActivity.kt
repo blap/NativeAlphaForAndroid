@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.webkit.CookieManager
 import android.webkit.WebStorage
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.cylonid.nativealpha.activities.AdblockConfigActivity
@@ -55,6 +56,54 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         }
 
 
+        val exportBackupLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val uri = result.data?.data
+
+                DataManager.getInstance()
+                    .saveGlobalSettings() //Needed to write legacy settings to new XML
+
+                if (!DataManager.getInstance().saveSharedPreferencesToFile(uri)) {
+                    NotificationUtils.showInfoSnackbar(
+                        this,
+                        getString(R.string.export_failed),
+                        Snackbar.LENGTH_LONG
+                    )
+                } else {
+                    NotificationUtils.showInfoSnackbar(
+                        this,
+                        getString(R.string.export_success),
+                        Snackbar.LENGTH_SHORT
+                    )
+                }
+
+            }
+        }
+
+        val importBackupLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val uri = result.data?.data
+                if (!DataManager.getInstance().loadSharedPreferencesFromFile(uri)) {
+                    NotificationUtils.showInfoSnackbar(
+                        this,
+                        getString(R.string.import_failed),
+                        Snackbar.LENGTH_LONG
+                    )
+                } else {
+                    NotificationUtils.showInfoSnackbar(
+                        this,
+                        getString(R.string.import_success),
+                        Snackbar.LENGTH_LONG
+                    )
+                    val restartIntent =
+                        baseContext.packageManager.getLaunchIntentForPackage(baseContext.packageName)
+                    restartIntent!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    startActivity(restartIntent)
+                }
+
+            }
+        }
+
         binding.btnExportSettings.setOnClickListener { v: View? ->
             val intent =
                 Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
@@ -64,7 +113,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
             val currentDateTime = sdf.format(Date())
             intent.putExtra(Intent.EXTRA_TITLE, "NativeAlpha_$currentDateTime")
             try {
-                startActivityForResult(intent, Const.CODE_WRITE_FILE)
+                exportBackupLauncher.launch(intent)
             } catch (e: ActivityNotFoundException) {
                 NotificationUtils.showInfoSnackbar(
                     this@SettingsActivity,
@@ -78,9 +127,8 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         binding.btnImportSettings.setOnClickListener { v: View? ->
             val intent = Intent().setType("*/*").setAction(Intent.ACTION_GET_CONTENT)
             try {
-                startActivityForResult(
-                    Intent.createChooser(intent, "Select a file"),
-                    Const.CODE_OPEN_FILE
+                importBackupLauncher.launch(
+                    Intent.createChooser(intent, "Select a file")
                 )
             } catch (e: ActivityNotFoundException) {
                 NotificationUtils.showInfoSnackbar(

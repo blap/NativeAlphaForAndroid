@@ -45,7 +45,7 @@ internal class BiometricPromptHelper(private val activity: FragmentActivity) {
         val biometricManager = BiometricManager.from(activity)
         var isSupported = false
 
-        when (biometricManager.canAuthenticate()) {
+        when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
             BiometricManager.BIOMETRIC_SUCCESS -> {
                 isSupported = true
             }

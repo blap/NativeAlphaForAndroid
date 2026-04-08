@@ -524,7 +524,7 @@ public class WebViewActivity extends AppCompatActivity implements EasyPermission
 
         if(quitOnNextBackpress) {
             quitOnNextBackpress = false;
-            moveTaskToBack(true);
+            super.onBackPressed();
             return;
         }
 
